@@ -12,6 +12,8 @@ MotorControl::MotorControl(QObject *parent)
     , m_K(0.0)
     , m_B(0.0)
     , m_G(0.0)
+    , m_J1(0.1)
+    , m_J2(0.1)
     , m_initialAngle1(0.0)
     , m_initialAngle2(0.0)
     , m_currentAngle1(0.0)
@@ -20,6 +22,10 @@ MotorControl::MotorControl(QObject *parent)
     , m_lastAngle2(0.0)
     , m_currentVelocity1(0.0)
     , m_currentVelocity2(0.0)
+    , m_calculatedVelocity1(0.0)
+    , m_calculatedVelocity2(0.0)
+    , m_calculatedPosition1(0.0)
+    , m_calculatedPosition2(0.0)
     , m_current1(0.0)
     , m_current2(0.0)
     , m_isControlling(false)
@@ -74,12 +80,15 @@ bool MotorControl::isConnected() const
     return m_serialPort && m_serialPort->isOpen();
 }
 
-void MotorControl::setImpedanceParameters(double K, double B, double G)
+void MotorControl::setImpedanceParameters(double K, double B, double G, double J1, double J2)
 {
     m_K = K;
     m_B = B;
     m_G = G;
-    emit statusChanged(QString("参数已更新 - K: %1, B: %2, G: %3").arg(K).arg(B).arg(G));
+    m_J1 = J1;
+    m_J2 = J2;
+    emit statusChanged(QString("参数已更新 - K: %1, B: %2, G: %3, J1: %4, J2: %5")
+                      .arg(K).arg(B).arg(G).arg(J1).arg(J2));
 }
 
 void MotorControl::captureInitialPosition()
@@ -95,6 +104,12 @@ void MotorControl::captureInitialPosition()
     m_lastAngle2 = m_currentAngle2;
     m_initialPositionCaptured = true;
     m_lastTime = QDateTime::currentMSecsSinceEpoch();
+    
+    // 初始化计算的速度和位置
+    m_calculatedVelocity1 = 0.0;
+    m_calculatedVelocity2 = 0.0;
+    m_calculatedPosition1 = 0.0;
+    m_calculatedPosition2 = 0.0;
     
     emit statusChanged(QString("初始位置已捕获 - 角度1: %1°, 角度2: %2°")
                       .arg(m_initialAngle1, 0, 'f', 2)
@@ -201,6 +216,15 @@ void MotorControl::controlLoop()
     // 请求实时数据
     requestRealtimeData();
     
+    // 获取时间步长
+    qint64 currentTime = QDateTime::currentMSecsSinceEpoch();
+    double dt = (currentTime - m_lastTime) / 1000.0;  // 转换为秒
+    m_lastTime = currentTime;
+    
+    if (dt <= 0 || dt > 0.1) {  // 防止时间步长异常
+        dt = 0.02;  // 默认20ms
+    }
+    
     // 计算位置误差
     double positionError1 = m_currentAngle1 - m_initialAngle1;
     double positionError2 = m_currentAngle2 - m_initialAngle2;
@@ -209,13 +233,27 @@ void MotorControl::controlLoop()
     double velocityError1 = m_currentVelocity1;
     double velocityError2 = m_currentVelocity2;
     
-    // 计算阻抗力
-    double impedanceForce1 = calculateImpedanceForce(positionError1, velocityError1);
-    double impedanceForce2 = calculateImpedanceForce(positionError2, velocityError2);
+    // 计算阻抗力（力矩）
+    double impedanceTorque1 = calculateImpedanceForce(positionError1, velocityError1);
+    double impedanceTorque2 = calculateImpedanceForce(positionError2, velocityError2);
     
-    // 计算控制指令：θ_command = θ_current + F / K
-    double commandAngle1 = m_currentAngle1 + impedanceForce1 / m_K;
-    double commandAngle2 = m_currentAngle2 + impedanceForce2 / m_K;
+    // === 基于动力学模型的控制算法 ===
+    // 力矩 τ = J × α，所以 α = τ / J
+    // 计算角加速度
+    double angularAcceleration1 = impedanceTorque1 / m_J1;
+    double angularAcceleration2 = impedanceTorque2 / m_J2;
+    
+    // 对角加速度积分得到角速度：ω = ∫α dt
+    m_calculatedVelocity1 += angularAcceleration1 * dt;
+    m_calculatedVelocity2 += angularAcceleration2 * dt;
+    
+    // 对角速度积分得到角位置：θ = ∫ω dt
+    m_calculatedPosition1 += m_calculatedVelocity1 * dt;
+    m_calculatedPosition2 += m_calculatedVelocity2 * dt;
+    
+    // 计算控制指令：θ_command = θ_current + θ_calculated
+    double commandAngle1 = m_currentAngle1 + m_calculatedPosition1;
+    double commandAngle2 = m_currentAngle2 + m_calculatedPosition2;
     
     // 发送控制指令
     sendControlCommand(commandAngle1, commandAngle2);

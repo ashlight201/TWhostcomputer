@@ -46,6 +46,8 @@ private:
     QLineEdit *KCoefficient_lineEdit;
     QLineEdit *BCoefficient_lineEdit;
     QLineEdit *Gravity_lineEdit;
+    QLineEdit *Inertia1_lineEdit;
+    QLineEdit *Inertia2_lineEdit;
     QPushButton *confirm_pushButton;
     
     // UI组件 - 数据显示

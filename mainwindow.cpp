@@ -122,6 +122,16 @@ void MainWindow::createParameterGroup()
     Gravity_lineEdit->setPlaceholderText("输入重力补偿项");
     Gravity_lineEdit->setText("0.0");
     
+    QLabel *j1Label = new QLabel("转动惯量1 (J1):", this);
+    Inertia1_lineEdit = new QLineEdit(this);
+    Inertia1_lineEdit->setPlaceholderText("输入关节1转动惯量");
+    Inertia1_lineEdit->setText("0.1");
+    
+    QLabel *j2Label = new QLabel("转动惯量2 (J2):", this);
+    Inertia2_lineEdit = new QLineEdit(this);
+    Inertia2_lineEdit->setPlaceholderText("输入关节2转动惯量");
+    Inertia2_lineEdit->setText("0.1");
+    
     confirm_pushButton = new QPushButton("确认参数", this);
     confirm_pushButton->setStyleSheet("QPushButton { background-color: #2196F3; color: white; padding: 5px; }");
     connect(confirm_pushButton, &QPushButton::clicked, this, &MainWindow::onConfirmClicked);
@@ -132,7 +142,11 @@ void MainWindow::createParameterGroup()
     layout->addWidget(BCoefficient_lineEdit, 0, 3);
     layout->addWidget(gLabel, 1, 0);
     layout->addWidget(Gravity_lineEdit, 1, 1);
-    layout->addWidget(confirm_pushButton, 1, 2, 1, 2);
+    layout->addWidget(j1Label, 1, 2);
+    layout->addWidget(Inertia1_lineEdit, 1, 3);
+    layout->addWidget(j2Label, 2, 0);
+    layout->addWidget(Inertia2_lineEdit, 2, 1);
+    layout->addWidget(confirm_pushButton, 2, 2, 1, 2);
     
     QVBoxLayout *mainLayout = qobject_cast<QVBoxLayout*>(centralWidget()->layout());
     if (mainLayout) {
@@ -205,12 +219,14 @@ void MainWindow::createControlGroup()
 
 void MainWindow::onConfirmClicked()
 {
-    bool okK, okB, okG;
+    bool okK, okB, okG, okJ1, okJ2;
     double K = KCoefficient_lineEdit->text().toDouble(&okK);
     double B = BCoefficient_lineEdit->text().toDouble(&okB);
     double G = Gravity_lineEdit->text().toDouble(&okG);
+    double J1 = Inertia1_lineEdit->text().toDouble(&okJ1);
+    double J2 = Inertia2_lineEdit->text().toDouble(&okJ2);
     
-    if (!okK || !okB || !okG) {
+    if (!okK || !okB || !okG || !okJ1 || !okJ2) {
         QMessageBox::warning(this, "参数错误", "请输入有效的数值参数！");
         return;
     }
@@ -220,8 +236,14 @@ void MainWindow::onConfirmClicked()
         return;
     }
     
-    m_motorControl->setImpedanceParameters(K, B, G);
-    appendStatus(QString("参数已设置 - K: %1, B: %2, G: %3").arg(K).arg(B).arg(G));
+    if (J1 <= 0.0 || J2 <= 0.0) {
+        QMessageBox::warning(this, "参数错误", "转动惯量必须大于零！");
+        return;
+    }
+    
+    m_motorControl->setImpedanceParameters(K, B, G, J1, J2);
+    appendStatus(QString("参数已设置 - K: %1, B: %2, G: %3, J1: %4, J2: %5")
+                .arg(K).arg(B).arg(G).arg(J1).arg(J2));
 }
 
 void MainWindow::onConnectClicked()

@@ -2,9 +2,10 @@
 #define MOTORCONTROL_H
 
 #include <QObject>
-#include <QSerialPort>
-#include <QSerialPortInfo>
+#include <QtSerialPort/QSerialPort>
+#include <QtSerialPort/QSerialPortInfo>
 #include <QTimer>
+#include <QString>
 
 class MotorControl : public QObject
 {

@@ -1,5 +1,5 @@
 #include "mainwindow.h"
-#include <QSerialPortInfo>
+#include <QtSerialPort/QSerialPortInfo>
 #include <QMessageBox>
 #include <QDateTime>
 #include <QGridLayout>

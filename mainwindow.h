@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QWidget>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QComboBox>
@@ -10,6 +11,7 @@
 #include <QHBoxLayout>
 #include <QGroupBox>
 #include <QTextEdit>
+#include <QGridLayout>
 #include "motorcontrol.h"
 
 class MainWindow : public QMainWindow

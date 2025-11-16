@@ -1,8 +1,10 @@
 #include "mainwindow.h"
+#include "motorcontrol.h"
 #include <QtSerialPort/QSerialPortInfo>
 #include <QMessageBox>
 #include <QDateTime>
 #include <QGridLayout>
+#include <QStringList>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)

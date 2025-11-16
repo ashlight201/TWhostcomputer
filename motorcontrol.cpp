@@ -2,6 +2,8 @@
 #include <QDebug>
 #include <QDateTime>
 #include <QRegularExpression>
+#include <QtMath>
+#include <QIODevice>
 
 MotorControl::MotorControl(QObject *parent)
     : QObject(parent)

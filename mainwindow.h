@@ -12,7 +12,9 @@
 #include <QGroupBox>
 #include <QTextEdit>
 #include <QGridLayout>
-#include "motorcontrol.h"
+
+// 前向声明
+class MotorControl;
 
 class MainWindow : public QMainWindow
 {

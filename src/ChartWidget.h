@@ -2,13 +2,22 @@
 #define CHARTWIDGET_H
 
 #include <QWidget>
+#include <QTimer>
+
+// Qt Charts 兼容性处理
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include <QtCharts/QChart>
 #include <QtCharts/QChartView>
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QValueAxis>
-#include <QTimer>
-
 QT_CHARTS_USE_NAMESPACE
+#else
+#include <QtCharts/QChart>
+#include <QtCharts/QChartView>
+#include <QtCharts/QLineSeries>
+#include <QtCharts/QValueAxis>
+QT_CHARTS_USE_NAMESPACE
+#endif
 
 class ChartWidget : public QWidget
 {

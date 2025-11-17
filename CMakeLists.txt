@@ -5,8 +5,15 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # 查找Qt6或Qt5
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Widgets SerialPort Charts)
+# 首先尝试Qt6，如果失败则尝试Qt5
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Widgets SerialPort Charts QUIET)
+if(NOT QT_FOUND)
+    message(FATAL_ERROR "未找到Qt5或Qt6，请安装Qt开发库")
+endif()
+
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Widgets SerialPort Charts)
+
+message(STATUS "使用Qt版本: ${QT_VERSION_MAJOR}")
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)

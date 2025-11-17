@@ -72,13 +72,61 @@ workspace/
 
 ## 编译安装
 
+### Windows（推荐使用Qt Creator）
+
+**📖 详细安装指南：** 请查看 [INSTALL_WINDOWS.md](INSTALL_WINDOWS.md)
+
+#### 快速步骤：
+
+1. **安装Qt（包含Charts模块）**
+   - 下载Qt在线安装器：https://www.qt.io/download-qt-installer
+   - 安装时必须勾选：`Qt Charts` 和 `Qt Serial Port` 模块
+   - 推荐安装 Qt 6.5 LTS MSVC版本
+
+2. **使用Qt Creator编译**
+   ```
+   1. 打开 Qt Creator
+   2. 文件 → 打开文件或项目 → 选择 CMakeLists.txt
+   3. 配置Kit（选择MSVC或MinGW）
+   4. 点击"构建"按钮（Ctrl+B）
+   5. 点击"运行"按钮（Ctrl+R）
+   ```
+
+3. **或使用命令行编译**
+   
+   **MSVC编译（推荐）：**
+   ```cmd
+   :: 双击运行编译脚本
+   build_msvc.bat
+   ```
+   
+   **MinGW编译：**
+   ```cmd
+   :: 双击运行编译脚本
+   build_mingw.bat
+   ```
+   
+   **或手动编译：**
+   ```cmd
+   :: 设置Qt路径
+   set CMAKE_PREFIX_PATH=C:\Qt\6.5.0\msvc2019_64
+   
+   :: 编译
+   mkdir build && cd build
+   cmake -G "Visual Studio 16 2019" -A x64 ..
+   cmake --build . --config Release
+   
+   :: 运行
+   bin\Release\MotorCalibration.exe
+   ```
+
 ### Linux / macOS
 
 ```bash
 # 安装Qt开发库（以Ubuntu为例）
-sudo apt-get install qt6-base-dev qt6-serialport-dev qt6-charts-dev
-# 或者使用Qt5
-# sudo apt-get install qtbase5-dev libqt5serialport5-dev libqt5charts5-dev
+sudo apt-get install qtbase5-dev libqt5serialport5-dev libqt5charts5-dev
+# 或者使用Qt6
+# sudo apt-get install qt6-base-dev qt6-serialport-dev qt6-charts-dev
 
 # 创建构建目录
 mkdir build && cd build
@@ -91,21 +139,6 @@ make -j4
 
 # 运行
 ./bin/MotorCalibration
-```
-
-### Windows
-
-```cmd
-# 使用Qt Creator打开CMakeLists.txt
-# 或者使用命令行（需要配置Qt环境变量）
-
-mkdir build
-cd build
-cmake -DCMAKE_PREFIX_PATH=C:/Qt/6.x.x/msvc2019_64 ..
-cmake --build . --config Release
-
-# 运行
-bin\Release\MotorCalibration.exe
 ```
 
 ## 使用说明

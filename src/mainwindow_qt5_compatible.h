@@ -13,25 +13,20 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
-// Qt Charts 头文件
-// Qt 5.x 和 Qt 6.x 兼容的包含方式
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    #include <QtCharts>
-#else
-    #include <QtCharts/QChartView>
-    #include <QtCharts/QChart>
-    #include <QtCharts/QLineSeries>
-    #include <QtCharts/QValueAxis>
-#endif
+// Qt Charts 头文件 - Qt 5.12 兼容方式
+#include <QtCharts/QChartView>
+#include <QtCharts/QChart>
+#include <QtCharts/QLineSeries>
+#include <QtCharts/QValueAxis>
 
 #include "serialporthandler.h"
 #include "dataprocessor.h"
 
-// 使用 Qt Charts 命名空间
+// 使用 Qt Charts 命名空间 - Qt 5.12 兼容
 QT_CHARTS_USE_NAMESPACE
 
 /**
- * @brief 主窗口类
+ * @brief 主窗口类（Qt 5.12 兼容版本）
  * 实现电机力矩标定系统的主界面
  */
 class MainWindow : public QMainWindow
@@ -153,7 +148,7 @@ private:
     QVector<QPointF> m_coefficientPoints;
     
     int m_dataPointCounter;
-    static const int MAX_CHART_POINTS = 100;  // Qt 5兼容：使用const而不是constexpr
+    static const int MAX_CHART_POINTS = 100;
 };
 
 #endif // MAINWINDOW_H

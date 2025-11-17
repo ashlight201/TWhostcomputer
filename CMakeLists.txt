@@ -9,22 +9,67 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # 查找Qt6或Qt5
-# 首先尝试Qt6，如果失败则尝试Qt5
+# 用户指定使用Qt 5.12，优先查找Qt5
 set(QT_FOUND FALSE)
+set(QT_VERSION_MAJOR 5)
 
-# 尝试Qt6
-find_package(Qt6 QUIET COMPONENTS Core Widgets SerialPort Charts)
-if(Qt6_FOUND)
-    set(QT_VERSION_MAJOR 6)
+# 添加常见的Qt 5.12安装路径
+set(QT_POSSIBLE_PATHS
+    "/usr/lib/x86_64-linux-gnu/cmake/Qt5"
+    "/usr/lib/cmake/Qt5"
+    "/opt/Qt/5.12.*/lib/cmake/Qt5"
+    "/opt/Qt5.12.*/lib/cmake/Qt5"
+    "$ENV{HOME}/Qt/5.12.*/lib/cmake/Qt5"
+    "$ENV{HOME}/Qt5.12.*/lib/cmake/Qt5"
+    "/usr/local/Qt/5.12.*/lib/cmake/Qt5"
+    "/usr/local/Qt5.12.*/lib/cmake/Qt5"
+)
+
+# 尝试从环境变量获取Qt路径
+if(DEFINED ENV{QT_DIR})
+    list(INSERT QT_POSSIBLE_PATHS 0 "$ENV{QT_DIR}")
+    set(CMAKE_PREFIX_PATH "$ENV{QT_DIR}" ${CMAKE_PREFIX_PATH})
+    message(STATUS "从环境变量QT_DIR获取路径: $ENV{QT_DIR}")
+endif()
+
+if(DEFINED ENV{QT5_DIR})
+    list(INSERT QT_POSSIBLE_PATHS 0 "$ENV{QT5_DIR}")
+    set(CMAKE_PREFIX_PATH "$ENV{QT5_DIR}" ${CMAKE_PREFIX_PATH})
+    message(STATUS "从环境变量QT5_DIR获取路径: $ENV{QT5_DIR}")
+endif()
+
+# 从CMAKE_PREFIX_PATH获取（如果通过命令行指定）
+if(CMAKE_PREFIX_PATH)
+    message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
+endif()
+
+# 尝试Qt5（优先，因为用户指定了Qt 5.12）
+foreach(QT_PATH ${QT_POSSIBLE_PATHS})
+    if(EXISTS ${QT_PATH})
+        set(CMAKE_PREFIX_PATH ${QT_PATH} ${CMAKE_PREFIX_PATH})
+        message(STATUS "尝试Qt路径: ${QT_PATH}")
+    endif()
+endforeach()
+
+find_package(Qt5 QUIET COMPONENTS Core Widgets SerialPort Charts)
+if(Qt5_FOUND)
     set(QT_FOUND TRUE)
-    message(STATUS "找到Qt6")
+    message(STATUS "找到Qt5: ${Qt5_VERSION}")
 else()
-    # 尝试Qt5
+    # 如果指定路径找不到，尝试系统默认路径
+    message(STATUS "在指定路径未找到Qt5，尝试系统默认路径...")
     find_package(Qt5 QUIET COMPONENTS Core Widgets SerialPort Charts)
     if(Qt5_FOUND)
-        set(QT_VERSION_MAJOR 5)
         set(QT_FOUND TRUE)
-        message(STATUS "找到Qt5")
+        message(STATUS "在系统路径找到Qt5: ${Qt5_VERSION}")
+    else()
+        # 尝试Qt6作为备选
+        find_package(Qt6 QUIET COMPONENTS Core Widgets SerialPort Charts)
+        if(Qt6_FOUND)
+            set(QT_VERSION_MAJOR 6)
+            set(QT_FOUND TRUE)
+            message(STATUS "找到Qt6: ${Qt6_VERSION}")
+        endif()
     endif()
 endif()
 

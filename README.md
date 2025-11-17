@@ -54,7 +54,28 @@
 
 ## 编译步骤
 
-### Linux
+### 使用Qt 5.12（推荐）
+
+如果您使用的是Qt 5.12版本：
+
+```bash
+# 方法1: 自动查找Qt 5.12
+./find_qt5.sh
+./build_with_qt5.sh
+
+# 方法2: 手动指定Qt路径
+export QT5_DIR="/path/to/qt5/lib/cmake/Qt5"
+./build.sh
+
+# 方法3: 在CMake命令中指定
+mkdir build && cd build
+cmake .. -DCMAKE_PREFIX_PATH="/path/to/qt5/lib/cmake/Qt5"
+make
+```
+
+详细说明请查看 [QT5_SETUP.md](QT5_SETUP.md)
+
+### Linux（通用）
 
 ```bash
 mkdir build

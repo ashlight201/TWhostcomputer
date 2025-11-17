@@ -12,13 +12,14 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QtCharts/QChartView>
-#include <QtCharts/QLineSeries>
-#include <QtCharts/QValueAxis>
+
+// Qt Charts 头文件（使用不带路径的包含方式）
+#include <QtCharts>
 
 #include "serialporthandler.h"
 #include "dataprocessor.h"
 
+// 使用 Qt Charts 命名空间
 QT_CHARTS_USE_NAMESPACE
 
 /**

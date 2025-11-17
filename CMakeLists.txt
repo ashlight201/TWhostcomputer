@@ -35,7 +35,7 @@ add_executable(${PROJECT_NAME}
     ${HEADERS}
 )
 
-# 链接Qt库
+# 链接Qt库并设置包含目录
 if(Qt6_FOUND)
     target_link_libraries(${PROJECT_NAME}
         Qt6::Core
@@ -43,12 +43,18 @@ if(Qt6_FOUND)
         Qt6::SerialPort
         Qt6::Charts
     )
+    target_include_directories(${PROJECT_NAME} PRIVATE
+        ${Qt6Charts_INCLUDE_DIRS}
+    )
 else()
     target_link_libraries(${PROJECT_NAME}
         Qt5::Core
         Qt5::Widgets
         Qt5::SerialPort
         Qt5::Charts
+    )
+    target_include_directories(${PROJECT_NAME} PRIVATE
+        ${Qt5Charts_INCLUDE_DIRS}
     )
 endif()
 
